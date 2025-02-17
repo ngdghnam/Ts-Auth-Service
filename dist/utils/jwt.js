@@ -5,14 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class JwtHandler {
-    constructor(secret) {
+    constructor(secret, refreshSecret) {
         this.secret = secret;
+        this.refreshSecret = refreshSecret;
     }
-    signToken(payload, options) {
-        return jsonwebtoken_1.default.sign(payload, this.secret, options || {});
+    signToken(payload, secretOrOptions, options) {
+        if (typeof secretOrOptions === "string") {
+            return jsonwebtoken_1.default.sign(payload, secretOrOptions, options || {});
+        }
+        return jsonwebtoken_1.default.sign(payload, this.secret, secretOrOptions || {});
     }
+    // signToken(payload: object, options?: SignOptions): string {
+    //   return jwt.sign(payload, this.secret, options || {});
+    // }
     verifyToken(token) {
-        return jsonwebtoken_1.default.verify(token, this.secret);
+        return jsonwebtoken_1.default.verify(token, this.refreshSecret);
     }
     decodeToken(token) {
         return jsonwebtoken_1.default.decode(token);

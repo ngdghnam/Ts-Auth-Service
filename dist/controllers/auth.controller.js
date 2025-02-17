@@ -19,7 +19,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 class UserController {
     constructor() {
-        // Remove the Promise<Response> return type - this was causing the error
+        // Đăng ký
         this.handleRegister = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, age, password } = req.body;
@@ -47,7 +47,33 @@ class UserController {
                 res.status(500).json({ message: "Internal Server Error" });
             }
         });
-        this.jwtHandler = new jwt_1.default(process.env.JWT_SECRET_KEY || "your_secret_key");
+        // Đăng nhập
+        this.handleLogin = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!req.body.username || !req.body.password) {
+                    res.status(400).json({ message: "username and password are required" });
+                    return;
+                }
+                const user = yield this.userRepo.getUserByUserName(req.body.username);
+                if (!user) {
+                    res.status(400).json({ message: `user ${user} not found` });
+                    return;
+                }
+                const { password } = req.body;
+                if (user.userPassword &&
+                    (yield this.cryptography.comparePassword(password, user.userPassword))) {
+                    const token = this.jwtHandler.signToken({ id: user.userID }, { expiresIn: "1h" });
+                    const refreshToken = this.jwtHandler.signToken({ id: user.userID, refreshToken: true }, process.env.JWT_REFRESH_SECRET || "your_refresh_secret_key", { expiresIn: "7d" });
+                    res.status(200).json({ token, refreshToken });
+                    return;
+                }
+            }
+            catch (error) {
+                console.error("Error in Login:", error);
+                res.status(500).json({ message: "Internal Server Error" });
+            }
+        });
+        this.jwtHandler = new jwt_1.default(process.env.JWT_SECRET_KEY || "gfg_jwt_secret_key", process.env.REFRESH_TOKEN_KEY || "refresh_token");
         this.userRepo = new userRepo_1.default();
         this.cryptography = new cryptography_1.default();
     }
