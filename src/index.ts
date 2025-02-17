@@ -2,6 +2,9 @@ import express, { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 
+// Routes
+import authRouter from "./routes/auth.route";
+
 // Logger
 import logger from "./config/logger";
 import morgan from "morgan";
@@ -49,9 +52,11 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ Name: dev.name, Role: dev.role });
 });
 
+app.use("/auth", authRouter);
+
 // 404 Handler
 app.use((_, res) => {
-  res.status(404).send("Path not found!");
+  res.status(404).json({ message: "Path not found" });
 });
 
 export default app;

@@ -55,4 +55,4 @@ class Cryptography {
         });
     }
 }
-exports.default = new Cryptography();
+exports.default = Cryptography;

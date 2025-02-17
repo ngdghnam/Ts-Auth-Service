@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const cors_1 = __importDefault(require("cors"));
+// Routes
+const auth_route_1 = __importDefault(require("./routes/auth.route"));
 // Logger
 const logger_1 = __importDefault(require("./config/logger"));
 const morgan_1 = __importDefault(require("morgan"));
@@ -41,8 +43,9 @@ app.get("/", (req, res) => {
     // res.send("Hello World from Express Typescript!");
     res.status(200).json({ Name: dev.name, Role: dev.role });
 });
+app.use("/auth", auth_route_1.default);
 // 404 Handler
 app.use((_, res) => {
-    res.status(404).send("Path not found!");
+    res.status(404).json({ message: "Path not found" });
 });
 exports.default = app;

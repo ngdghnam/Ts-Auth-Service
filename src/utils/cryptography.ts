@@ -49,4 +49,4 @@ class Cryptography {
   };
 }
 
-export default new Cryptography();
+export default Cryptography;

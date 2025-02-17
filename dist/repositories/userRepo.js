@@ -15,18 +15,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../config/database"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 class UserRepository {
+    constructor() {
+        this.database = (0, database_1.default)("users");
+    }
     createUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { userName, userAge, userPassword } = user;
-            const [result] = yield database_1.default.raw("INSERT INTO users (userName, userAge, userPassword) VALUES (?, ?, ?)", [userName, userAge, userPassword]);
-            return result.insertId; // Return the generated userID
+            const result = yield this.database.insert({
+                userName,
+                userAge,
+                userPassword,
+            });
+            return result[0]; // MySQL returns the insertId
         });
     }
     findUserById(userID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const [rows] = yield database_1.default.raw("SELECT * FROM users WHERE userID = ?", [
-                userID,
-            ]);
+            const rows = yield this.database
+                .select("*")
+                .from("users")
+                .where({ userID });
             if (rows.length === 0)
                 return null;
             return new userModel_1.default(rows[0].userID, rows[0].userName, rows[0].userAge, rows[0].userPassword);
@@ -35,17 +43,29 @@ class UserRepository {
     updateUser(userID, userData) {
         return __awaiter(this, void 0, void 0, function* () {
             const { userName, userAge, userPassword } = userData;
-            const [result] = yield database_1.default.raw("UPDATE users SET userName = ?, userAge = ?, userPassword = ? WHERE userID = ?", [userName, userAge, userPassword, userID]);
-            return result.affectedRows > 0;
+            const result = yield this.database
+                .where({ userID })
+                .update({ userName, userAge, userPassword });
+            return result > 0;
         });
     }
     deleteUser(userID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const [result] = yield database_1.default.raw("DELETE FROM users WHERE userID = ?", [
-                userID,
-            ]);
-            return result.affectedRows > 0;
+            const result = yield this.database.where({ userID }).del();
+            return result > 0;
+        });
+    }
+    getUserByUserName(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const rows = yield this.database
+                .select("*")
+                .from("users")
+                .where({ userName: username });
+            if (!rows || rows.length === 0)
+                return null;
+            const user = rows[0];
+            return new userModel_1.default(user.userID, user.userName, user.userAge, user.userPassword);
         });
     }
 }
-exports.default = new UserRepository();
+exports.default = UserRepository;
