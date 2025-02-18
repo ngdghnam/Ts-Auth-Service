@@ -1,5 +1,5 @@
 import db from "../config/database";
-import User from "../models/userModel";
+import User from "../entities/userModel";
 
 class UserRepository {
   private database;
