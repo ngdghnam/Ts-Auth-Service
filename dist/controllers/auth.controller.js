@@ -73,6 +73,67 @@ class UserController {
                 res.status(500).json({ message: "Internal Server Error" });
             }
         });
+        this.handleValidateToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            if (!req.headers.authorization) {
+                res.status(401).json({ message: "Authorization header is required" });
+                return;
+            }
+            const authHeader = req.headers.authorization.split(" ");
+            if (authHeader.length !== 2 || authHeader[0] !== "Bearer") {
+                res.status(401).json({ message: "Invalid authorization header" });
+                return;
+            }
+            try {
+                const payload = this.jwtHandler.verifyToken(authHeader[1], process.env.JWT_SECRET || "gfg_jwt_secret_key");
+                if (!payload) {
+                    res.status(401).json({ message: "Invalid token" });
+                    return;
+                }
+                const user = yield this.userRepo.findUserById(payload.userId);
+                if (!user) {
+                    res.status(404).json({ message: "User not found!" });
+                    return;
+                }
+                if (payload.refreshToken) {
+                    res
+                        .status(401)
+                        .json({ message: "Refresh token not allowed for this endpoint" });
+                    return;
+                }
+                if (payload.exp && Date.now() >= payload.exp * 1000) {
+                    res.status(401).json({ message: "Token has expired" });
+                    return;
+                }
+                res.status(200).json({ message: "Token is valid" });
+                return;
+            }
+            catch (error) {
+                res.status(401).json({ message: "Invalid token" });
+                return;
+            }
+        });
+        this.handleRefreshToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            if (!req.body.refreshToken) {
+                res.status(400).json({ message: "Refresh token is required" });
+                return;
+            }
+            const payload = this.jwtHandler.verifyToken(req.body.refreshToken, process.env.JWT_REFRESH_SECRET || "your_refresh_secret_key");
+            if (!payload ||
+                typeof payload !== "object" ||
+                !("refreshToken" in payload)) {
+                res.status(401).json({ message: "Invalid refresh token" });
+                return;
+            }
+            console.log(payload.refreshToken);
+            const user = yield this.userRepo.findUserById(payload.userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            const token = this.jwtHandler.signToken({ id: user.userID }, { expiresIn: "1h" });
+            res.status(200).json({ token, refreshToken: req.body.refreshToken });
+            return;
+        });
         this.jwtHandler = new jwt_1.default(process.env.JWT_SECRET_KEY || "gfg_jwt_secret_key", process.env.REFRESH_TOKEN_KEY || "refresh_token");
         this.userRepo = new userRepo_1.default();
         this.cryptography = new cryptography_1.default();

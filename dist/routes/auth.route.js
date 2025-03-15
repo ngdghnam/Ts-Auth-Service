@@ -8,4 +8,6 @@ const auth_controller_1 = __importDefault(require("../controllers/auth.controlle
 const router = express_1.default.Router();
 router.post("/register", auth_controller_1.default.handleRegister);
 router.post("/login", auth_controller_1.default.handleLogin);
+router.get("/validate", auth_controller_1.default.handleValidateToken);
+router.post("/refresh", auth_controller_1.default.handleRefreshToken);
 exports.default = router;

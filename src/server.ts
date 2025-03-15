@@ -1,16 +1,22 @@
 import app from "./index";
-import { CheckConnection } from "./config/database";
+import { createDatabase, CheckConnection } from "./config/database";
 import logger from "./config/logger";
 
 const PORT = process.env.PORT || 3000;
 
-CheckConnection()
-  .then(() => {
+const initializeServer = async () => {
+  try {
+    await createDatabase();
+    await CheckConnection();
+
     app.listen(PORT, () => {
+      console.log(process.env.DB_NAME);
       logger.info(`Server is running on port ${PORT}`);
     });
-  })
-  .catch((e) => {
-    logger.error(e);
+  } catch (error) {
+    logger.error(error);
     process.exit(1);
-  });
+  }
+};
+
+initializeServer();

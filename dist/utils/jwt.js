@@ -18,8 +18,16 @@ class JwtHandler {
     // signToken(payload: object, options?: SignOptions): string {
     //   return jwt.sign(payload, this.secret, options || {});
     // }
-    verifyToken(token) {
-        return jsonwebtoken_1.default.verify(token, this.refreshSecret);
+    // verifyToken(token: string): object | string {
+    //   return jwt.verify(token, this.refreshSecret);
+    // }
+    verifyToken(token, secret) {
+        try {
+            return jsonwebtoken_1.default.verify(token, secret);
+        }
+        catch (error) {
+            return null;
+        }
     }
     decodeToken(token) {
         return jsonwebtoken_1.default.decode(token);
