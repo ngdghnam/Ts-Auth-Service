@@ -13,7 +13,6 @@ const initializeServer = async () => {
     app.listen(PORT, () => {
       // console.log(process.env.DB_NAME);
       console.log(process.env.APP_NAME);
-      console.log(replicaApp);
       logger.info(`${replicaApp} is running on port ${PORT}`);
     });
   } catch (error) {
