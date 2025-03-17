@@ -1,12 +1,94 @@
-version: '3.4'
+version: "3.4"
+
+x-common-environment: &common-environment
+  NODE_ENV: production
+  DB_HOST: mysql-server
+  DB_USER: root
+  DB_PASSWORD: hoainam11122004
+  DB_NAME: hnamdatabase
+  DB_PORT: 3306
 
 services:
-  authservicewtypescript:
+  mysql-server:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=hnamdatabase
+      - MYSQL_ROOT_PASSWORD=hoainam11122004
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - auth-network
+
+  authservice:
     image: authservicewtypescript
     build:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      NODE_ENV: production
+      <<: *common-environment
+      APP_NAME: MainApp
     ports:
-      - 3000:3000
+      - 3004:3000
+    restart: unless-stopped
+    depends_on:
+      mysql-server:
+        condition: service_healthy
+    networks:
+      - auth-network
+
+  authservice1:
+    image: authservicewtypescript
+    environment:
+      <<: *common-environment
+      APP_NAME: App1
+    ports:
+      - 3001:3000
+    restart: unless-stopped
+    depends_on:
+      mysql-server:
+        condition: service_healthy
+    networks:
+      - auth-network
+
+  authservice2:
+    image: authservicewtypescript
+    environment:
+      <<: *common-environment
+      APP_NAME: App2
+    ports:
+      - 3002:3000
+    restart: unless-stopped
+    depends_on:
+      mysql-server:
+        condition: service_healthy
+    networks:
+      - auth-network
+
+  authservice3:
+    image: authservicewtypescript
+    environment:
+      <<: *common-environment
+      APP_NAME: App3
+    ports:
+      - 3003:3000
+    restart: unless-stopped
+    depends_on:
+      mysql-server:
+        condition: service_healthy
+    networks:
+      - auth-network
+
+networks:
+  auth-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

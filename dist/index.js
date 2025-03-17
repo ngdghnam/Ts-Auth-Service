@@ -19,6 +19,8 @@ app.use(body_parser_1.default.json());
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+// env
+const replicaApp = process.env.APP_NAME || "App_Name";
 // Format file.log
 const morganFormat = ":method :url :status :response-time ms";
 // Logger
@@ -41,7 +43,11 @@ let dev = {
 };
 app.get("/", (req, res) => {
     // res.send("Hello World from Express Typescript!");
-    res.status(200).json({ Name: dev.name, Role: dev.role });
+    res.status(200).json({
+        Name: dev.name,
+        Role: dev.role,
+        Request: `Requested is served by: ${replicaApp}`,
+    });
 });
 app.use("/auth", auth_route_1.default);
 // 404 Handler

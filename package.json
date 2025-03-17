@@ -15,8 +15,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.13.4",
     "bcryptjs": "^3.0.0",
     "body-parser": "^1.20.3",
     "concurrently": "^9.1.2",
@@ -35,8 +33,10 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.3",
-    "@types/jsonwebtoken": "^9.0.8",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.9",
+    "@types/node": "^22.13.10",
     "nodemon": "^3.1.9"
   }
 }

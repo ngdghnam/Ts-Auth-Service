@@ -16,13 +16,16 @@ const index_1 = __importDefault(require("./index"));
 const database_1 = require("./config/database");
 const logger_1 = __importDefault(require("./config/logger"));
 const PORT = process.env.PORT || 3000;
+const replicaApp = process.env.APP_NAM || "App_Name";
 const initializeServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, database_1.createDatabase)();
         yield (0, database_1.CheckConnection)();
         index_1.default.listen(PORT, () => {
-            console.log(process.env.DB_NAME);
-            logger_1.default.info(`Server is running on port ${PORT}`);
+            // console.log(process.env.DB_NAME);
+            console.log(process.env.APP_NAME);
+            console.log(replicaApp);
+            logger_1.default.info(`${replicaApp} is running on port ${PORT}`);
         });
     }
     catch (error) {

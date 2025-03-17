@@ -1,0 +1,99 @@
+PROXY LÀ GÌ? 
+Định nghĩa: Proxy hoạt động như một trung gian giữa client và server. Khi client gửi yêu cầu, proxy sẽ nhận yêu cầu đó rồi gửi đến server thay vì client gửi trực tiếp.
+Giống như 1 tường lửa bảo vệ client
+
+Mục đích:
+    Ẩn danh client (giúp che giấu IP thật).
+    Tường lửa và kiểm soát truy cập (chặn nội dung, lọc web).
+    Tăng tốc kết nối bằng cách cache dữ liệu. (caching: lưu dữ liệu trên proxy, lần sau fetch sẽ trả thẳng data về)
+
+==> client -> proxy -> server
+
+REVERSE PROXY LÀ GÌ? 
+Định nghĩa: Reverse Proxy đóng vai trò trung gian giữa server và client, nhưng thay vì đại diện cho client, nó đứng trước server để nhận yêu cầu từ client rồi phân phối đến server phù hợp.
+
+==> Điều hướng request tới từng cái server 
+
+Mục đích:
+    Bảo mật: Ẩn địa chỉ IP thật của server.
+    Cân bằng tải sơ bộ: Phân phối yêu cầu đến các server backend.
+    Tối ưu hóa hiệu suất: Cache nội dung tĩnh để giảm tải.
+    Chống tấn công DDoS bằng cách lọc request.
+==> Client → Reverse Proxy → Server 1 / Server 2 / Server n
+
+LOAD BALANCER? 
+Định nghĩa: Load Balancer phân phối lưu lượng mạng giữa nhiều server backend để đảm bảo hiệu suất và độ tin cậy.
+Mục đích:
+    Chia tải đồng đều giữa các server backend.
+    Giảm tải cho từng server, tránh quá tải.
+    Cải thiện khả năng chịu lỗi: Nếu một server gặp sự cố, load balancer sẽ chuyển request sang server khác.
+==> Client → Load Balancer → Server 1 / Server 2 / Server n
+
+Nginx: 
+a high performance web server 
+Piece of software on a server which handles http requests
+Nginx Proxy can compress the respone
+    to reduce bandwidth usage and improve load times
+    
+
+worker_processes
+    control how many parallel processes Nginx spawns to handle client requests
+"What is Worker Process?"
+    instead of using a new process for every incoming connection , Nginx uses worker processes
+    that handle many connections using a single-threaded event loop
+"What does the number present?" 
+    the value is the number of worker processes in Nginx should create 
+    Each worker process runs independently and can handle its own set of connections
+    --> THIS CONFIGURATION DIRECTLY INFLUENCES HOW WELL IT CAN HANDLE TRAFFIC (PERFORMANCE)
+    Should be tuned according to the server's hardware (CPU cores) and expected traffic load 
+
+auto = Nginx automatically detects the number of CPU cores 
+        available on the server and starts a corresponding number of worker nodes 
+
+if you have 1 worker process, you will be able to serve 1024 clients ==> 2 = 1024 * 2 and so on 
+
+The higher the value, the more requests can be handled
+But it will: 
+    - increase memory usage
+        - the actual simultaneous connections cannot exceed the current limit
+        on the max number of open files 
+
+Server block 
+    Defines how Nginx should handle requests for a particular domain on IP address
+    How to listen for connections
+    which domain or subdomain the configuration applies to 
+    How to route the requests
+
+
+Upstream
+    Refers to servers that Nginx forwards requests to 
+    "upstream" name is based on flow of data
+    Upstream servers = refers to traffic going from a client toward the source 
+                        of higher-level infra, in this case application server
+    Downstream servers = Traffic going back to the client is "downstream" 
+    Upstream block defines a group of backend servers that will handle requests forwards by Nginx
+
+
+When Nginx acts as a reverse proxy, the requests coming to the backend servers originate from Nginx,
+NOT DIRECTLY FROM THE CLIENT
+--> As a result, backend servers would see the IP Address of the Nginx server as the source of the request. 
+
+WE NEED TO TELL NGINX TO INCLUDE THE CORRESPONDING MIME TYPES
+IN THE "CONTENT-TYPE" RESPONE HEADER, WHEN SENDING A FILES 
+THIS HELP CLIENT TO UNDERSTAND HOW TO PROCESS OR RENDER THE FILE 
+
+Confiure https - encrypted communication
+    https uses ssl to encrypt the data transmitted over the web 
+    all communication between the client and server is encrypted
+
+Obtain an ssl/tls certificate 
+    - ssl certificates enable encryption by using public-key cryptographic
+    - when a user connects to a website via HTTPs, the web server provides its ssl certificate, which contains a public key 
+
+Generates a self-signed certificate
+- Generates and signed by server itself 
+    --> Useful for testing or internal sites, but not recommended for production 
+CA-signed certificates
+- issued and authenicated by a trusted certificate authority
+- CA verified the identity of the organization requesting the certificate 
+TRUSTED BY BROWSER 
