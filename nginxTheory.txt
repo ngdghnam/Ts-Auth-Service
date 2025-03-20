@@ -97,3 +97,98 @@ CA-signed certificates
 - issued and authenicated by a trusted certificate authority
 - CA verified the identity of the organization requesting the certificate 
 TRUSTED BY BROWSER 
+
+# worker_processes auto; 
+user nginx;
+worker_processes 1; 
+
+# General connection processing
+events {
+    worker_connections 1024; 
+}
+
+http {
+    # include mime.types;
+
+    upstream nodejs_cluster {
+        least_conn;
+        server 127.0.0.1:3001;
+        server 127.0.0.1:3002;
+        server 127.0.0.1:3003;
+        server 127.0.0.1:3004;
+    }
+
+    server {
+        # The IP address and port on which the server will accept requests
+        listen 4800 ssl;
+        # Which domain or IP address this server block should respond to  
+        server_name hnamserver;
+
+        ssl_certificate D:\nginx\nginx-certs\certificate.crt;
+        ssl_certificate_key D:\nginx\nginx-certs\nginx-selfsigned.key;
+
+        # How specific types of requests (such as URLs or file types) should be handled 
+        location / {
+            # tell nginx to "pass" the request to another server making it act as a reverse proxy 
+            proxy_pass http://nodejs_cluster;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+
+    server {
+        listen 8080; 
+        server_name hnamserver;
+        location / {
+            return 301 https://$host$request_uri
+        }
+    }
+}   
+
+
+# worker_processes auto; 
+user nginx;
+worker_processes 1; 
+
+# General connection processing
+events {
+    worker_connections 1024; 
+}
+
+http {
+    include mime.types;
+
+    upstream nodejs_cluster {
+        least_conn;
+        server 127.0.0.1:3001;
+        server 127.0.0.1:3002;
+        server 127.0.0.1:3003;
+        server 127.0.0.1:3004;
+    }
+
+    server {
+        # The IP address and port on which the server will accept requests
+        listen 443 ssl;
+        # Which domain or IP address this server block should respond to  
+        server_name localhost;
+
+        ssl_certificate D:\nginx\nginx-certs\certificate.crt;
+        ssl_certificate_key D:\nginx\nginx-certs\nginx-selfsigned.key;
+
+        # How specific types of requests (such as URLs or file types) should be handled 
+        location / {
+            # tell nginx to "pass" the request to another server making it act as a reverse proxy 
+            proxy_pass http://nodejs_cluster;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+
+    server {
+        listen 8080; 
+        server_name localhost;
+        location / {
+            return 301 https://$host$request_uri
+        }
+    }
+}   
